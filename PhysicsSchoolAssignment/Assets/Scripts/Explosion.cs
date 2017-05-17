@@ -10,7 +10,7 @@ public class Explosion : MonoBehaviour
 
     [SerializeField] private float explosionDelay;
     [SerializeField] private Vector3 offset;
-    [SerializeField] private bool goBoom;
+    [SerializeField] private bool detonate;
 
     private float explosionEndTime;
     [SerializeField] private float timer = 0;
@@ -20,20 +20,21 @@ public class Explosion : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        explosionDelay += Time.time;
+
         if (force.length <= 0 || radius.length <= 0)
             Destroy(gameObject);
-
         foreach (Keyframe key in radius.keys)
-            explosionEndTime = Mathf.Max(explosionEndTime, Time.time + explosionDelay + key.time);
+            explosionEndTime = Mathf.Max(explosionEndTime,explosionDelay + key.time);
 
         foreach (Keyframe key in force.keys)
-            explosionEndTime = Mathf.Max(explosionEndTime, Time.time + explosionDelay + key.time);
+            explosionEndTime = Mathf.Max(explosionEndTime, explosionDelay + key.time);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (goBoom)
+        if (Time.time >= explosionDelay)
         {
             currentRadius = radius.Evaluate(timer);
             currentForce = force.Evaluate(timer);
@@ -57,7 +58,7 @@ public class Explosion : MonoBehaviour
                 }
             }
 
-            if (timer >= explosionDelay)
+            if (timer >= explosionEndTime)
                 Destroy(gameObject);
             else
                 timer += Time.deltaTime;
@@ -66,10 +67,10 @@ public class Explosion : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if(timer >= explosionDelay)
+        if(Time.time >= explosionDelay)
         {
-            Gizmos.color = new Color(0.5f + currentForce / 500, 0.5f - currentForce, 0, Mathf.Clamp(Mathf.Abs(currentForce) / 1000, 0.1f, 0.75f));
-
+            //Gizmos.color = new Color(0.5f + currentForce / 500, 0.5f - currentForce, 0, Mathf.Clamp(Mathf.Abs(currentForce) / 1000, 0.1f, 0.75f));
+            Gizmos.color = Color.red;
             Gizmos.DrawSphere(transform.position, currentRadius);
         }
     }
