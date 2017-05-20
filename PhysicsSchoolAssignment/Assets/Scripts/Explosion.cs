@@ -7,6 +7,7 @@ public class Explosion : MonoBehaviour
     [SerializeField] private AnimationCurve radius;
     [SerializeField] private AnimationCurve force;
     [SerializeField] private AnimationCurve falloff;
+    [SerializeField] private GameObject particle;
 
     [SerializeField] private float explosionDelay;
     [SerializeField] private Vector3 offset;
@@ -16,6 +17,7 @@ public class Explosion : MonoBehaviour
     [SerializeField] private float timer = 0;
     float currentRadius = 0;
     float currentForce = 0;
+    private bool particleSystemCreated = false;
 
     // Use this for initialization
     void Start()
@@ -36,6 +38,17 @@ public class Explosion : MonoBehaviour
     {
         if (Time.time >= explosionDelay)
         {
+
+            if (particleSystemCreated == false)
+            {
+                MeshRenderer mesh = GetComponent<MeshRenderer>();
+                mesh.enabled = false;
+
+                GameObject explosion = Instantiate(particle);
+                explosion.transform.position = transform.position;
+                particleSystemCreated = true;
+            }
+
             currentRadius = radius.Evaluate(timer);
             currentForce = force.Evaluate(timer);
 
@@ -64,15 +77,4 @@ public class Explosion : MonoBehaviour
                 timer += Time.deltaTime;
         }
     }
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
-    {
-        if(Time.time >= explosionDelay)
-        {
-            //Gizmos.color = new Color(0.5f + currentForce / 500, 0.5f - currentForce, 0, Mathf.Clamp(Mathf.Abs(currentForce) / 1000, 0.1f, 0.75f));
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(transform.position, currentRadius);
-        }
-    }
-#endif
 }

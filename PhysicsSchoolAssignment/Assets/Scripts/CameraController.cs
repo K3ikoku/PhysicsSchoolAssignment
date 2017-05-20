@@ -9,9 +9,15 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] private float sensitivity = 5.0f;
     [SerializeField] private float smoothing = 2.0f;
-    [SerializeField] private GameObject grenadeType;
+    [SerializeField] private GameObject[] grenadeTypes;
     [SerializeField] private float throwCooldown = 5.0f;
     [SerializeField] private float throwForce = 10.0f;
+    [SerializeField] private int currentGrenade;
+
+    public GameObject CurrentGrenade
+    {
+        get { return grenadeTypes[currentGrenade]; }
+    }
 
 
     GameObject character;
@@ -38,6 +44,19 @@ public class CameraController : MonoBehaviour
 
         if (Input.GetKeyDown("escape"))
             Cursor.lockState = CursorLockMode.None;
+
+        if (Input.GetKeyDown("1"))
+            currentGrenade = 0;
+
+        if (Input.GetKeyDown("2"))
+            currentGrenade = 1;
+
+        if (Input.GetKeyDown("3"))
+            currentGrenade = 2;
+
+        if (Input.GetKeyDown("4"))
+            currentGrenade = 3;
+
     }
 
     private void FixedUpdate()
@@ -54,7 +73,7 @@ public class CameraController : MonoBehaviour
     void ThrowGrenade()
     {
         attackTimer = throwCooldown;
-        GameObject grenade = Instantiate(grenadeType) as GameObject;
+        GameObject grenade = Instantiate(CurrentGrenade) as GameObject;
         grenade.transform.position = transform.position + transform.forward;
         Rigidbody grenadeBody = grenade.GetComponent<Rigidbody>();
         grenadeBody.AddForce(transform.forward * throwForce);
